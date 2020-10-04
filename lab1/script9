@@ -1,0 +1,3 @@
+#!/bin/bash
+
+wc /var/log/*.log -l | tail -n 1

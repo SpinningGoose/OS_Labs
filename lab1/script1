@@ -1,0 +1,12 @@
+#!/bin/bash
+
+a=$1
+if [[ $a -lt $2 ]]
+then a=$2
+fi
+if [[ $a -lt $3 ]]
+then a=$3
+fi
+echo "$a"
+
+
