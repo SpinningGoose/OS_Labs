@@ -10,6 +10,7 @@ do
       let counter=$counter+1
       if [[ $counter == $1 ]]
       then
+         echo "succsess!" >> mreport.log
          exit 0
       fi
    done
