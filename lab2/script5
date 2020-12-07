@@ -1,0 +1,36 @@
+#!/bin/bash
+
+ppid=0
+ATR=0
+curNum=0
+fileBuffer=""
+while read line
+do
+ if [[ -n $line ]]
+ then
+  curppid=$(echo $line | grep -E -h -s -i -o "Parent_ProcessID=[0-9]+" | grep -o "[0-9]\+" )
+  curATR=$(echo $line | grep -E -h -s -i -o "Average_Running_Time=[0-9.]+" | grep -o "[0-9.]\+")
+  if [[ $ppid == $curppid ]]
+  then
+   ATR=$(echo "$ATR+$curATR" | bc)
+   curNum=$(echo "$curNum+1" | bc)
+  else
+   ATR=$(echo "scale=9; $ATR/$curNum" | bc | awk '{printf "%f", $0}')
+   if [[ -n $fileBuffer ]]
+   then
+    fileBuffer=$fileBuffer"Average_Sleeping_Children_of_ParentID="$ppid" is "$ATR$'\n'
+   fi
+   ATR=$curATR
+   ppid=$curppid
+   curNum=1
+  fi
+  fileBuffer=$fileBuffer$line$'\n'
+ fi
+done < stat.txt
+ATR=$(echo "scale=9; $ATR/$curNum" | bc | awk '{printf "%f", $0}')
+if [[ -n $fileBuffer ]]
+then
+ fileBuffer=$fileBuffer"Average_Sleeping_Children_of_parentID="$ppid" is "$ATR$'\n'
+fi
+echo "$fileBuffer" > stat2.txt
+

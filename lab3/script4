@@ -1,0 +1,5 @@
+#!/bin/bash
+
+nice -n 10 /home/user/lab3/script4_1 &
+/home/user/lab3/script4_2 &
+/home/user/lab3/script4_3 &

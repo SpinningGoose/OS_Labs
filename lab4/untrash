@@ -1,0 +1,59 @@
+#!/bin/bash
+
+fileFound=0
+if [ -z $1 ]
+ then
+  echo "Empty file name!"
+  exit 0
+fi
+if ! [ -z $2 ]
+ then
+ echo "Too many arguments!"
+ exit 0
+fi
+if [[ $1 == "/"* ]]
+then
+ echo "Path entered!"
+ exit 0
+fi
+for i in $(grep -h $1  $HOME/trash.log)
+do
+path=$(echo $i | awk -F ":" '{print $1}')
+file=$(echo $i | awk -F ":" '{print $2}')
+if [[ $PWD/$1 == $path ]]
+then
+ $fileFound=1
+ restFile=$HOME/.trash
+ restFile=$restFile/$file
+ if [ -e $restFile ]
+ then
+  echo "Restore $path ? (y/n)"
+  read answer
+  if [[ $answer == "y" ]]
+  then
+   if [ -d $(dirname $path) ]
+   then
+    if [ -e $path ]
+    then
+     echo "File with such name already exists. Entrer new name for restoring file: "
+     read newName
+     ln $restFile $(dirname $path)/$newName
+    else
+     ln $restFile $path
+    fi
+   else
+    echo "Directory $(dirname $path) is non existent. File will be restored in home directoey"
+    ln $restFile $HOME/$1
+   fi
+  rm $restFile
+  grep -v $file $HOME/trash.log > $HOME/trash.tmp
+  mv $HOME/trash.tmp $HOME/trash.log
+  fi
+ fi
+fi
+done
+if [[ $fileFound == 0 ]]
+then
+ echo "No such file!"
+ exit 0
+fi

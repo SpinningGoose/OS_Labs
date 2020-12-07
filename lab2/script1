@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#tmp=ps -U root  | wc -l > processes.txt
+ps -U user | awk '{print $1":"$4}' > tmp.txt
+cat tmp.txt | wc -l > processes.txt
+cat tmp.txt >> processes.txt
+rm -f tmp.txt

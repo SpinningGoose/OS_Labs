@@ -1,0 +1,4 @@
+#!/bin/bash
+
+at -f ./script1 now +2 minutes
+tail -n 0 -f ~/report.txt

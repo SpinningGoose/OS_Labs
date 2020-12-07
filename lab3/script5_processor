@@ -1,0 +1,41 @@
+#!/bin/bash
+
+cur=1
+operand='+'
+#gen_pid=$(tail -n 1 pipe)
+tail -f pipe | while true
+do
+ read line
+ case $line in
+ '+')
+  operand='+'
+  echo "adding"
+ ;;
+ \*)
+  operand='*'
+  echo "multiplying"
+ ;;
+ [0-9]*)
+  if [[ $operand == '+' ]]
+  then
+   let cur=$cur+$line
+  else
+   let cur=$cur*$line
+  fi
+  echo $cur
+ ;;
+ QUIT)
+#   echo "quitting..."
+#   kill $(cat .pid2)
+#   killall tail
+   exit 0
+ ;;
+ *)
+  echo "Wrong input!"
+#  kill $gen_pid
+  kill $(cat .pid2)
+  killall tail
+  exit 1
+ ;;
+ esac
+done

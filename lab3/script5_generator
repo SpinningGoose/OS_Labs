@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo $$ > .pid2
+./script5_processor &
+while true
+do
+ read line
+ if [[ $line == "QUIT" ]]
+ then
+  echo "quitting..."
+  echo "$line" > pipe
+  exit 0
+ else
+  echo "$line" > pipe
+ fi
+done

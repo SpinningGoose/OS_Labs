@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo $$ > .pid
+cur=1
+operand="+"
+sigterm()
+{
+ echo "STOP"
+ exit
+}
+user1()
+{
+ operand="+"
+ }
+user2()
+{
+ operand="*"
+ }
+trap 'sigterm' SIGTERM
+trap 'user1' USR1
+trap 'user2' USR2
+while true; do
+ case $operand in
+ +)
+  let res=$res+2
+ ;;
+ \*)
+  let res=$res*2
+ ;;
+  *)
+   :
+ ;;
+ esac
+ echo "$res"
+ sleep 1
+done

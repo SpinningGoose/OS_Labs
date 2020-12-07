@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ -z $1 ]
+ then
+  echo "Empty file name!"
+  exit 0
+fi
+if ! [ -z $2 ]
+ then
+  echo "Too many arguments!"
+  exit 0
+fi
+if ! [ -d $HOME/.trash ]
+ then
+  mkdir $HOME/.trash
+fi
+if ! [ -e $HOME/.curNum ]
+ then
+  touch $HOME/.curNum
+  echo "0" > $HOME/.curNum
+fi
+curFile=$(grep -E -s "[0-9]+" $HOME/.curNum)
+let curFile=$curFile+1
+echo $curFile > $HOME/.curNum
+ln $1 $HOME/.trash/$curFile
+rm $1
+if ! [ -e $HOME/trash.log ]
+ then
+  touch $HOME/trash.log
+fi
+echo "$PWD/$1:$curFile" >> $HOME/trash.log
+

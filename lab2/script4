@@ -1,0 +1,22 @@
+#!/bin/bash
+
+"" > stt.txt
+for i in $(ps -Ao pid)
+do
+ ppid=$(grep -E -h -s -i "ppid" "/proc/$i/status" | grep -o "[0-9.]\+")
+ if [[ $ppid != "" ]]
+ then
+  ser=$(grep -E -h -s -i "sum_exec_runtime" /proc/$i/sched | grep -o -w "[0-9.]\+")
+  ns=$(grep -E -h -s -i "nr_switches" /proc/$i/sched | grep -o "[0-9.]\+")
+  ART=$(echo "scale=9; $ser/$ns" | bc | awk '{printf "%f", $0}')
+#  tmp=$(echo ${ART:1:1})
+#  if [[ $tmp == "." ]]
+#  then
+#   ART="0"$ART
+#  fi
+  echo -n "ProcessID=$i : " >> stt.txt
+  echo -n "Parent_ProcessID=$ppid : " >> stt.txt
+  echo "Average_Running_Time=$ART" >> stt.txt
+ fi
+done
+sort -o stat.txt -t = -b -nk3 stt.txt

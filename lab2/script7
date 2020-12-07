@@ -1,0 +1,36 @@
+#!/bin/bash
+
+
+#grep -E -h -s "read_bytes" /proc/*/io | awk
+buffer=""
+bytesStart=""
+bytesEnd=""
+for pid in $(ps -Ao pid | sort -n)
+do
+ bytesStart=$bytesStart$pid" "$(grep -h -s "read_bytes" "/proc/$pid/io" | grep -E -h -s -o "[0-9]+")$'\n'
+done
+echo "$bytesStart" > tmp1.txt
+sleep 1m
+for pid in $(ps -Ao pid | sort -n)
+do
+ if [ "/proc/$pid/io" ]
+ then
+  bytesEnd=$bytesEnd$pid" "$(grep -h -s "read_bytes" "/proc/$pid/io" | grep -E -o -h "[0-9]+")$'\n'
+ else
+  bytesEnd=$bytesEnd$pid" null"
+ fi
+done
+echo "$bytesEnd" > tmp2.txt
+cat "tmp1.txt" |
+ while read line
+ do
+  pid=$(echo $line | awk '{print $1}')
+  bS=$(echo $line | awk '{print $2}')
+  bE=$(cat "tmp2.txt" | awk '{if ($1 == $pid) print $2}')
+  if [[ $bE!="null" ]]
+  then
+   diff=$(echo "$bE - $bS" | bc | sed 's/-//')
+   cmdln=$(cat "/proc/$pid/cmdline" | awk '{print $1}')
+  echo $pid":"$diff":"$cmdln
+  fi
+done | sort -t ":" -n -r -k 2  | head -n 3

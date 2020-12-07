@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cur_date=$(date +%y%m%d_%H:%M)
+mkdir /home/test && ( echo "catalog was created successfully" >> ~/report.txt ; touch /home/test/$cur_date.txt )
+ping -c 1 www.net_nikogo.ru || echo "$cur_date site is not avalible" >> ~/report.txt

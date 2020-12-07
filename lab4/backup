@@ -1,0 +1,41 @@
+#!/bin/bash
+
+curDate=$(date +%F)
+report="$HOME/backup-report"
+source="$HOME/source"
+lastBackup=$(ls $HOME -1 | grep -E "Backup-[0-9]{4}-[0-9]{2}-[0-9]{2}" | sort -r -k2 | head -1)
+backupDate=$(date --date=$(echo $lastBackup | sed "s/^Backup-//")  "+%s" )
+curD=$(date --date=$curDate "+%s")
+#dateDiff=$( ($(date --date=$curDate +%s)\-$(date --date=$backupDate +%s))/(60*60*24) )
+let dateDiff=($curD\-$backupDate)/60/60/24
+if  ! [[ -z $lastBackup ]] && [[ $dateDiff -le 7 ]]
+then
+ curDir=$HOME/$lastBackup
+ echo "Backup updated on $curDate in $source. Files updated:" >> $report
+ for i in $(ls $source -1)
+ do
+  if [ -e $curDir/$i ]
+  then
+   backupSize=$(stat --format=%s $curDir/$i)
+   curSize=$(stat --format=%s $source/$i )
+   if [[ $backupSize != $curSize ]]
+   then
+    mv $curDir/$i $curDir/$i"."$curDate
+    cp $source/$i $curDir/$i
+    echo "$i was replaced with the latest version. Old version renamed to "$i"."$curDate >> $report
+   fi
+  else
+    cp $source/$i $curDir/$i
+    echo "New file $i added" >> $report
+   fi
+  done
+else
+ mkdir $HOME/Backup-$curDate
+ curDir=$HOME/Backup-$curDate
+ echo "Backup created on $curDate named Backup-$curDate in $source. Files copied:" >> $report
+ for i in $(ls $source -1)
+ do
+  cp $source/$i $curDir/$i
+  echo $i >> $report
+ done
+fi
